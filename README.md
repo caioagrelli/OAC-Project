@@ -103,38 +103,6 @@ O processador implementa um pipeline clássico de **5 estágios**:
 
 ---
 
-## 📊 Avaliação
-
-| Componente | Peso | Tipo |
-|------------|------|------|
-| Implementação + Relatório | 70% | Nota da Equipe |
-| Apresentação oral (16/06/2026) | 20% | Nota Individual |
-| Participação nos acompanhamentos | 10% | Nota Individual |
-
-### Apresentação — 16/06/2026
-
-A apresentação deverá cobrir a **explicação da implementação em etapas**, incluindo:
-
-- Aritmética, lógica e deslocamentos (R-type)
-- Aritmética, lógica e deslocamentos com imediatos (I-type)
-- Acesso à memória — loads (I-type) e stores (S-type)
-- Desvios condicionais (B-type)
-- Jumps (J-type)
-- Imediato superior (U-type)
-- **Demonstração no FPGA**
-
----
-
-## 🗓️ Cronograma dos Acompanhamentos
-
-| Data | Conteúdo |
-|------|----------|
-| 02/06/2026 | Acompanhamento Etapa 01 — R-type e I-type (aritmética, lógica, deslocamentos) |
-| 09/06/2026 | Acompanhamento Etapa 02 — Loads, Stores, Desvios, Jumps e U-type |
-| 16/06/2026 | Apresentação final do projeto |
-
----
-
 ## 🔧 Como Executar
 
 ### Simulação
@@ -176,6 +144,7 @@ verilator --cc top.sv --exe tb/tb_etapa1.sv --build
 |------|--------|
 | Caio Agrelli | caarr@cin.ufpe.br |
 | Lucas David | ldlf@cin.ufpe.br |
+| João Gustavo | jggp@cin.ufpe.br |
 
 ---
 
