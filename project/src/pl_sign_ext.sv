@@ -3,6 +3,7 @@
 // Extensao de Sinal de Imediatos -- RV32I pipelined (P&H secao 4.4)
 //
 // Formatos suportados:
+//   I-type arith : imm[11:0]  = inst[31:20]
 //   I-type (lw)  : imm[11:0]  = inst[31:20]
 //   S-type (sw)  : imm[11:5]  = inst[31:25], imm[4:0] = inst[11:7]
 //   B-type (beq) : imm[12]=inst[31], imm[11]=inst[7], imm[10:5]=inst[30:25],
@@ -16,12 +17,15 @@ module pl_sign_ext (
     output logic [31:0] ImmExt
 );
 
+    localparam I_TYPE = 7'b0010011;
     localparam LOAD   = 7'b0000011;
     localparam STORE  = 7'b0100011;
     localparam BRANCH = 7'b1100011;
 
     always_comb begin
         case (Instr[6:0])
+            I_TYPE: ImmExt = {{20{Instr[31]}}, Instr[31:20]};
+
             LOAD:   ImmExt = {{20{Instr[31]}}, Instr[31:20]};
 
             STORE:  ImmExt = {{20{Instr[31]}}, Instr[31:25], Instr[11:7]};
