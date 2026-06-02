@@ -28,6 +28,7 @@ module pl_alu_ctrl (
 
             2'b01: Operation = 4'd02;   // Branch BEQ  -> SUB
 
+            2'b11,                      // I-type (ADDI) -> ADD
             2'b10: begin                // R-type: decodificar Funct
                 case (Funct3)
                     3'h0: Operation = Funct7[5] ? 4'd02 : 4'd01; // SUB ou ADD
