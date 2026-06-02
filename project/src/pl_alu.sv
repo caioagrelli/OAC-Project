@@ -5,6 +5,7 @@
 // Codificacao de operacao (Operation[3:0]):
 //   4'd01 : ADD  -- adicao com sinal
 //   4'd02 : SUB  -- subtracao com sinal  (BEQ usa Zero)
+//   4'd03 : XOR  -- XOR bit a bit
 //   4'd04 : OR   -- OU bit a bit
 //   4'd05 : AND  -- E bit a bit
 //   4'd11 : SLT  -- set-less-than com sinal
@@ -24,6 +25,7 @@ module pl_alu (
         case (Operation)
             4'd01:   ALUResult = $signed(SrcA) + $signed(SrcB);
             4'd02:   ALUResult = $signed(SrcA) - $signed(SrcB);
+            4'd03:   ALUResult = SrcA ^ SrcB;
             4'd04:   ALUResult = SrcA | SrcB;
             4'd05:   ALUResult = SrcA & SrcB;
             4'd11:   ALUResult = 32'($signed(SrcA) < $signed(SrcB));
