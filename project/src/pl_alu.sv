@@ -8,7 +8,11 @@
 //   4'd03 : XOR  -- XOR bit a bit
 //   4'd04 : OR   -- OU bit a bit
 //   4'd05 : AND  -- E bit a bit
+//   4'd06 : SLL  -- shift left logical
+//   4'd07 : SRL  -- shift right logical
+//   4'd08 : SRA  -- shift right arithmetic (preserva sinal)
 //   4'd11 : SLT  -- set-less-than com sinal
+//   4'd12 : SLTU -- set-less-than sem sinal
 // =============================================================================
 
 `timescale 1ns / 1ps
@@ -28,14 +32,11 @@ module pl_alu (
             4'd03:   ALUResult = SrcA ^ SrcB;
             4'd04:   ALUResult = SrcA | SrcB;
             4'd05:   ALUResult = SrcA & SrcB;
+            4'd06:   ALUResult = SrcA << SrcB[4:0];
+            4'd07:   ALUResult = SrcA >> SrcB[4:0];
+            4'd08:   ALUResult = $signed(SrcA) >>> SrcB[4:0];
             4'd11:   ALUResult = 32'($signed(SrcA) < $signed(SrcB));
-
-            4'd07:   ALUResult = SrcA << SrcB[4:0]; // SLL e SLLI (Esquerda)
-            4'd08:   ALUResult = SrcA >> SrcB[4:0]; // SRL e SRLI (Direita)
-
-            4'd09:   ALUResult = $signed(SrcA) >>> SrcB[4:0];     // SRA e SRAI
-            4'd10:   ALUResult = 32'(SrcA < SrcB);                // SLTU
-
+            4'd12:   ALUResult = 32'($unsigned(SrcA) < $unsigned(SrcB));
             default: ALUResult = 32'b0;
         endcase
     end

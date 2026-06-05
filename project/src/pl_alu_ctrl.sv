@@ -10,7 +10,8 @@
 //   Funct7[6:0], Funct3[2:0] : campos da instrucao
 //
 // Saida Operation[3:0] -> pl_alu.sv:
-//   4'd01 ADD  4'd02 SUB  4'd04 OR  4'd05 AND  4'd11 SLT
+//   4'd01 ADD   4'd02 SUB   4'd03 XOR   4'd04 OR    4'd05 AND
+//   4'd06 SLL   4'd07 SRL   4'd08 SRA   4'd11 SLT   4'd12 SLTU
 // =============================================================================
 
 `timescale 1ns / 1ps
@@ -28,8 +29,7 @@ module pl_alu_ctrl (
 
             2'b01: Operation = 4'd02;   // Branch BEQ  -> SUB
 
-            2'b11,                      // I-type (ADDI) -> ADD
-            2'b10: begin                // R-type: decodificar Funct
+            2'b10: begin                // R-type
                 case (Funct3)
                     3'h0: Operation = Funct7[5] ? 4'd02 : 4'd01; // SUB ou ADD
 
@@ -43,7 +43,23 @@ module pl_alu_ctrl (
 
                     3'h6: Operation = 4'd04;  // OR
                     3'h7: Operation = 4'd05;  // AND
+                    3'h1: Operation = 4'd06;  // SLL
                     3'h2: Operation = 4'd11;  // SLT
+                    3'h3: Operation = 4'd12;  // SLTU
+                    3'h5: Operation = Funct7[5] ? 4'd08 : 4'd07;  // SRA / SRL
+                    default: Operation = 4'd01;
+                endcase
+            end
+
+            2'b11: begin                      // I-type
+                case (Funct3)
+                    3'h0: Operation = 4'd01;  // ADDI
+                    3'h4: Operation = 4'd03;  // XORI
+                    3'h6: Operation = 4'd04;  // ORI
+                    3'h7: Operation = 4'd05;  // ANDI
+                    3'h1: Operation = 4'd06;  // SLLI
+                    3'h2: Operation = 4'd11;  // SLTI
+                    3'h5: Operation = Funct7[5] ? 4'd08 : 4'd07;  // SRAI / SRLI
                     default: Operation = 4'd01;
                 endcase
             end
