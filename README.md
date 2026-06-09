@@ -145,6 +145,7 @@ verilator --cc top.sv --exe tb/tb_etapa1.sv --build
 | Caio Agrelli | caarr@cin.ufpe.br |
 | Lucas David | ldlf@cin.ufpe.br |
 | João Gustavo | jggp@cin.ufpe.br |
+| Thales Afonso | tadg@cin.ufpe.br |
 
 ---
 
