@@ -81,7 +81,7 @@ Dividir as 12 instruções igualmente entre os 4 integrantes, 3 instruções por
 
 ---
 
-### Pessoa 4 — SLTU, SRLI, SRAI
+### Thales — SLTU, SRLI, SRAI
 
 **`pl_alu.sv`**
 - Adicionar operação SLTU (`$unsigned(SrcA) < $unsigned(SrcB)`)
