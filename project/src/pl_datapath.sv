@@ -335,10 +335,28 @@ module pl_datapath (
         .Zero      (zero)
     );
 
+    // =========================================================================
+    // Avaliação da Condição de Branch (Substitui a dependência do 'zero' da ALU)
+    // =========================================================================
+    logic branch_cond;
+    always_comb begin
+        case (id_ex.funct3)
+            3'b000: branch_cond = (fwd_srca == fwd_srcb);                      // BEQ
+            3'b001: branch_cond = (fwd_srca != fwd_srcb);                      // BNE
+            3'b100: branch_cond = ($signed(fwd_srca) < $signed(fwd_srcb));     // BLT
+            3'b101: branch_cond = ($signed(fwd_srca) >= $signed(fwd_srcb));    // BGE
+            3'b110: branch_cond = ($unsigned(fwd_srca) < $unsigned(fwd_srcb)); // BLTU
+            3'b111: branch_cond = ($unsigned(fwd_srca) >= $unsigned(fwd_srcb));// BGEU
+            default: branch_cond = 1'b0;
+        endcase
+    end
+
     // Resolucao de Jumps e Branches
     // O JALR soma rs1 (fwd_srca) com o imediato e zera o bit 0. O JAL e Branch somam o PC com o imediato.
     assign branch_target = id_ex.jalr ? ((fwd_srca + id_ex.imm_ext) & ~32'd1) : (id_ex.pc + id_ex.imm_ext);
-    assign pc_src        = id_ex.jump || (id_ex.branch && zero);
+    
+    // O pc_src agora usa o comparador dedicado (branch_cond) em vez do 'zero' da ALU
+    assign pc_src        = id_ex.jump || (id_ex.branch && branch_cond);
 
     // =========================================================================
     // Registrador EX/MEM
