@@ -335,10 +335,28 @@ module pl_datapath (
         .Zero      (zero)
     );
 
+    // =========================================================================
+    // Avaliação da Condição de Branch (Substitui a dependência do 'zero' da ALU)
+    // =========================================================================
+    logic branch_cond;
+    always_comb begin
+        case (id_ex.funct3)
+            3'b000: branch_cond = (fwd_srca == fwd_srcb);                      // BEQ
+            3'b001: branch_cond = (fwd_srca != fwd_srcb);                      // BNE
+            3'b100: branch_cond = ($signed(fwd_srca) < $signed(fwd_srcb));     // BLT
+            3'b101: branch_cond = ($signed(fwd_srca) >= $signed(fwd_srcb));    // BGE
+            3'b110: branch_cond = ($unsigned(fwd_srca) < $unsigned(fwd_srcb)); // BLTU
+            3'b111: branch_cond = ($unsigned(fwd_srca) >= $unsigned(fwd_srcb));// BGEU
+            default: branch_cond = 1'b0;
+        endcase
+    end
+
     // Resolucao de Jumps e Branches
     // O JALR soma rs1 (fwd_srca) com o imediato e zera o bit 0. O JAL e Branch somam o PC com o imediato.
     assign branch_target = id_ex.jalr ? ((fwd_srca + id_ex.imm_ext) & ~32'd1) : (id_ex.pc + id_ex.imm_ext);
-    assign pc_src        = id_ex.jump || (id_ex.branch && zero);
+    
+    // O pc_src agora usa o comparador dedicado (branch_cond) em vez do 'zero' da ALU
+    assign pc_src        = id_ex.jump || (id_ex.branch && branch_cond);
 
     // =========================================================================
     // Registrador EX/MEM
@@ -381,11 +399,15 @@ module pl_datapath (
     assign mmio_sel = ex_mem.alu_result[10];
 
     pl_dmem dmem (
-        .clk       (clk),
-        .MemWrite  (ex_mem.mem_write & ~mmio_sel),
-        .addr      (ex_mem.alu_result[9:2]),
-        .WriteData (ex_mem.write_data),
-        .ReadData  (dmem_rd)
+        .clk         (clk),
+        .MemWrite    (ex_mem.mem_write & ~mmio_sel),
+
+        .funct3      (ex_mem.funct3),
+        .byte_offset (ex_mem.alu_result[1:0]),
+
+        .addr        (ex_mem.alu_result[9:2]),
+        .WriteData   (ex_mem.write_data),
+        .ReadData    (dmem_rd)
     );
 
     pl_mmio mmio (
@@ -404,7 +426,48 @@ module pl_datapath (
         .UART_RXD  (UART_RXD)
     );
 
-    assign mem_read_data = mmio_sel ? mmio_rd : dmem_rd;
+    logic [31:0] raw_mem_read;
+    assign raw_mem_read = mmio_sel ? mmio_rd : dmem_rd;
+
+    // Extensao de sinal e zero para Loads parciais (LB, LH, LBU, LHU)
+    logic [31:0] final_mem_read;
+    logic [1:0]  mem_byte_offset;
+    assign mem_byte_offset = ex_mem.alu_result[1:0];
+
+    always_comb begin
+        case (ex_mem.funct3)
+            3'b000: begin // LB
+                case (mem_byte_offset)
+                    2'b00: final_mem_read = {{24{raw_mem_read[7]}},  raw_mem_read[7:0]};
+                    2'b01: final_mem_read = {{24{raw_mem_read[15]}}, raw_mem_read[15:8]};
+                    2'b10: final_mem_read = {{24{raw_mem_read[23]}}, raw_mem_read[23:16]};
+                    2'b11: final_mem_read = {{24{raw_mem_read[31]}}, raw_mem_read[31:24]};
+                endcase
+            end
+            3'b001: begin // LH
+                if (mem_byte_offset[1] == 1'b0)
+                    final_mem_read = {{16{raw_mem_read[15]}}, raw_mem_read[15:0]};
+                else
+                    final_mem_read = {{16{raw_mem_read[31]}}, raw_mem_read[31:16]};
+            end
+            3'b010: final_mem_read = raw_mem_read; // LW
+            3'b100: begin // LBU
+                case (mem_byte_offset)
+                    2'b00: final_mem_read = {24'b0, raw_mem_read[7:0]};
+                    2'b01: final_mem_read = {24'b0, raw_mem_read[15:8]};
+                    2'b10: final_mem_read = {24'b0, raw_mem_read[23:16]};
+                    2'b11: final_mem_read = {24'b0, raw_mem_read[31:24]};
+                endcase
+            end
+            3'b101: begin // LHU
+                if (mem_byte_offset[1] == 1'b0)
+                    final_mem_read = {16'b0, raw_mem_read[15:0]};
+                else
+                    final_mem_read = {16'b0, raw_mem_read[31:16]};
+            end
+            default: final_mem_read = raw_mem_read;
+        endcase
+    end
 
     // Saidas de observabilidade para o testbench
     assign mem_wr_en   = ex_mem.mem_write & ~mmio_sel;
@@ -432,7 +495,9 @@ module pl_datapath (
 
             mem_wb.reg_write  <= ex_mem.reg_write;
             mem_wb.alu_result <= ex_mem.alu_result;
-            mem_wb.read_data  <= mem_read_data;
+
+            mem_wb.read_data  <= final_mem_read;
+
             mem_wb.rd         <= ex_mem.rd;
 
             mem_wb.pc_plus4   <= ex_mem.pc_plus4; // Propaga ate WB

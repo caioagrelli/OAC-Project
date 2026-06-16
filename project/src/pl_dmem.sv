@@ -16,6 +16,10 @@
 module pl_dmem (
     input  logic        clk,
     input  logic        MemWrite,
+
+    input  logic [2:0]  funct3,      // Para identificar tamanho da escrita
+    input  logic [1:0]  byte_offset, // Para identificar a posicao na palavra
+
     input  logic [7:0]  addr,
     input  logic [31:0] WriteData,
     output logic [31:0] ReadData
@@ -30,8 +34,28 @@ module pl_dmem (
     end
     // synthesis translate_on
 
-    always@(posedge clk) begin
-        if (MemWrite) ram[addr] <= WriteData;
+    always_ff @(posedge clk) begin
+        if (MemWrite) begin
+            case (funct3)
+                3'b000: begin // SB (Store Byte)
+                    case (byte_offset)
+                        2'b00: ram[addr][7:0]   <= WriteData[7:0];
+                        2'b01: ram[addr][15:8]  <= WriteData[7:0];
+                        2'b10: ram[addr][23:16] <= WriteData[7:0];
+                        2'b11: ram[addr][31:24] <= WriteData[7:0];
+                    endcase
+                end
+                3'b001: begin // SH (Store Halfword)
+                    if (byte_offset[1] == 1'b0)
+                        ram[addr][15:0]  <= WriteData[15:0];
+                    else
+                        ram[addr][31:16] <= WriteData[15:0];
+                end
+                default: begin // SW (Store Word)
+                    ram[addr] <= WriteData;
+                end
+            endcase
+        end
     end
 
     assign ReadData = ram[addr];
