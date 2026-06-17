@@ -50,6 +50,8 @@ module pl_mmio (
     logic [7:0] rx_data;
     logic       rx_valid;
 
+    logic [7:0]  tx_byte;       // byte corrente entregue a UART
+
     pl_uart #(
         .CLK_HZ (50_000_000),
         .BAUD   (9_600)
@@ -76,7 +78,7 @@ module pl_mmio (
     logic [31:0] tx_word;       // palavra de 32 bits em transmissao
     logic [1:0]  tx_byte_idx;   // indice do byte atual (0=LSB, 3=MSB)
     logic        tx_word_busy;  // alto enquanto houver bytes a enviar
-    logic [7:0]  tx_byte;       // byte corrente entregue a UART
+    
 
     always_comb begin
         case (tx_byte_idx)
