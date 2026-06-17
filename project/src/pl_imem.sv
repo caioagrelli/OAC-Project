@@ -22,7 +22,7 @@ module pl_imem (
     // synthesis translate_off
     initial begin
         for (int i = 0; i < 256; i++) rom[i] = 32'h00000013; // NOP padrao
-        $readmemh("program.hex", rom);
+        $readmemh("../assembler/program.hex", rom);
     end
     // synthesis translate_on
 
