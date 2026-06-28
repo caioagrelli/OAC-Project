@@ -33,6 +33,12 @@ module pl_regfile (
 
     logic [31:0] rf [31:0];
 
+    // synthesis translate_off
+    initial begin
+        for (int i = 0; i < 32; i++) rf[i] = 32'h00000000;
+    end
+    // synthesis translate_on
+
     // Escrita no negedge: a atualizacao fica visivel antes do proximo posedge,
     // evitando o conflito read-after-write quando WB e ID ocorrem no mesmo ciclo.
     always_ff @(negedge clk) begin

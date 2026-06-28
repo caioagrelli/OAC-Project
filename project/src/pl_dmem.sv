@@ -14,13 +14,14 @@ module pl_dmem (
     output logic [31:0] ReadData
 );
 
-    // Declaração da memória (256 palavras de 32 bits)
-    logic [31:0] ram [0:255];
+    (* ram_init_file = "data.mif" *) logic [31:0] ram [0:255];
 
-    // Inicialização da memória com o arquivo de dados
+    // synthesis translate_off
     initial begin
-        $readmemh("../assembler/data.hex", ram);
+        for (int i = 0; i < 256; i++) ram[i] = 32'h00000000;
+        $readmemh("data.hex", ram);
     end
+    // synthesis translate_on
 
     // Leitura (combinacional) - A extensão de sinal para LB/LH é feita no datapath
     assign ReadData = ram[addr];
