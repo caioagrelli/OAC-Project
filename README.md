@@ -29,32 +29,47 @@ O processador implementa a arquitetura **RISC** (Reduced Instruction Set Compute
 ## 🗂️ Estrutura do Repositório
 
 ```
-rv32i-pipeline/
-├── src/
-│   ├── datapath/
-│   │   ├── alu.sv              # Unidade Lógica e Aritmética
-│   │   ├── regfile.sv          # Banco de registradores
-│   │   ├── imm_gen.sv          # Gerador de imediatos
-│   │   └── datapath.sv         # Datapath completo
-│   ├── control/
-│   │   ├── control.sv          # Unidade de controle principal
-│   │   ├── hazard_unit.sv      # Detecção e tratamento de hazards
-│   │   └── forwarding_unit.sv  # Forwarding de dados
-│   ├── memory/
-│   │   ├── instr_mem.sv        # Memória de instruções
-│   │   └── data_mem.sv         # Memória de dados
-│   ├── pipeline_regs/
-│   │   ├── if_id.sv            # Registrador de pipeline IF/ID
-│   │   ├── id_ex.sv            # Registrador de pipeline ID/EX
-│   │   ├── ex_mem.sv           # Registrador de pipeline EX/MEM
-│   │   └── mem_wb.sv           # Registrador de pipeline MEM/WB
-│   └── top.sv                  # Módulo top-level
-├── tb/
-│   ├── tb_etapa1.sv            # Testbench — Etapa 01
-│   └── tb_etapa2.sv            # Testbench — Etapa 02
-├── programs/
-│   ├── etapa1_test.s           # Programa de teste para Etapa 01
-│   └── etapa2_test.s           # Programa de teste para Etapa 02
+oac-project/
+├── project/
+│   ├── src/                    # Arquivos SystemVerilog do processador
+│   │   ├── pl_pipe_pkg.sv      # Package com structs dos registradores de pipeline
+│   │   ├── pl_alu.sv           # Unidade Lógica e Aritmética
+│   │   ├── pl_alu_ctrl.sv      # Decodificador de operação da ALU
+│   │   ├── pl_control.sv       # Unidade de controle principal
+│   │   ├── pl_datapath.sv      # Datapath completo
+│   │   ├── pl_regfile.sv       # Banco de registradores (32x32)
+│   │   ├── pl_sign_ext.sv      # Extensão de sinal para imediatos
+│   │   ├── pl_hazard.sv        # Detecção de load-use hazards
+│   │   ├── pl_forward.sv       # Forwarding de dados
+│   │   ├── pl_imem.sv          # Memória de instruções
+│   │   ├── pl_dmem.sv          # Memória de dados (com acesso parcial)
+│   │   ├── pl_mmio.sv          # Mapeamento de periféricos em memória
+│   │   ├── pl_cpu.sv           # CPU (datapath + controle)
+│   │   ├── pl_top.sv           # Top-level com PLL
+│   │   ├── pl_top_no_pll.sv    # Top-level sem PLL (simulação)
+│   │   └── pl_cpu_tb.sv        # Testbench
+│   ├── assembler/
+│   │   ├── assembler.py        # Assembler RV32I em Python
+│   │   ├── etapa01_test.asm    # Programa de teste — Etapa 01
+│   │   ├── hello_e2.asm        # Programa de teste — Etapa 02
+│   │   ├── program.hex         # Hex de instruções (Etapa 01)
+│   │   ├── program_e2.hex      # Hex de instruções (Etapa 02)
+│   │   └── data.hex            # Hex de dados iniciais
+│   └── modelsim/
+│       ├── golden.txt          # Saída esperada — Etapa 01
+│       ├── golden_e2.txt       # Saída esperada — Etapa 02
+│       ├── sim_e2.do           # Script ModelSim — Etapa 02
+│       └── run_e2.ps1          # Script PowerShell para simular Etapa 02
+├── docs/
+│   ├── report.md               # Relatório do projeto
+│   ├── adrs/                   # Architecture Decision Records
+│   │   ├── ADR-001-divisao-etapa01.md
+│   │   └── ADR-002-divisao-etapa02.md
+│   ├── tests/                  # Documentação das simulações
+│   │   ├── teste-etapa1.md
+│   │   └── teste-etapa2.md
+│   └── utils/
+│       └── general-structure.png
 └── README.md
 ```
 
@@ -100,6 +115,18 @@ O processador implementa um pipeline clássico de **5 estágios**:
 | B-type | `BEQ`, `BNE`, `BLT`, `BGE`, `BLTU`, `BGEU` |
 | J-type | `JAL`, `JALR` |
 | U-type | `LUI`, `AUIPC` |
+
+---
+
+## 📄 Documentação
+
+| Documento | Link |
+|-----------|------|
+| Relatório do Projeto | [docs/report.md](docs/report.md) |
+| ADR-001 — Divisão Etapa 01 | [docs/adrs/ADR-001-divisao-etapa01.md](docs/adrs/ADR-001-divisao-etapa01.md) |
+| ADR-002 — Divisão Etapa 02 | [docs/adrs/ADR-002-divisao-etapa02.md](docs/adrs/ADR-002-divisao-etapa02.md) |
+| Teste de Simulação — Etapa 01 | [docs/tests/teste-etapa1.md](docs/tests/teste-etapa1.md) |
+| Teste de Simulação — Etapa 02 | [docs/tests/teste-etapa2.md](docs/tests/teste-etapa2.md) |
 
 ---
 

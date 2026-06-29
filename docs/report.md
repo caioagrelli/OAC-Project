@@ -37,6 +37,17 @@ O processador implementa um pipeline clássico de 5 estágios (IF → ID → EX 
 
 ---
 
+## Documentação
+
+| Documento | Link |
+|-----------|------|
+| ADR-001 — Divisão Etapa 01 | [adrs/ADR-001-divisao-etapa01.md](adrs/ADR-001-divisao-etapa01.md) |
+| ADR-002 — Divisão Etapa 02 | [adrs/ADR-002-divisao-etapa02.md](adrs/ADR-002-divisao-etapa02.md) |
+| Teste de Simulação — Etapa 01 | [tests/teste-etapa1.md](tests/teste-etapa1.md) |
+| Teste de Simulação — Etapa 02 | [tests/teste-etapa2.md](tests/teste-etapa2.md) |
+
+---
+
 ## Etapa 01 — Aritmética, Lógica e Deslocamentos
 
 **Entrega:** 02/06/2026  
@@ -69,7 +80,7 @@ O processador implementa um pipeline clássico de 5 estágios (IF → ID → EX 
 
 ### Simulação
 
-Resultado: **PASS** — ver [teste-etapa1.md](tests/teste-etapa1.md)
+Resultado: **PASS** — ver [tests/teste-etapa1.md](tests/teste-etapa1.md)
 
 ---
 
@@ -107,6 +118,10 @@ Resultado: **PASS** — ver [teste-etapa1.md](tests/teste-etapa1.md)
 | João | BNE, BLT, BGE, BLTU, BGEU (condição de branch generalizada) |
 | Caio | LB, LH, LBU, LHU (leitura parcial na dmem) |
 | Lucas | SB, SH (escrita parcial na dmem) |
+
+### Simulação
+
+Resultado: **PASS** — ver [tests/teste-etapa2.md](tests/teste-etapa2.md)
 
 ---
 
