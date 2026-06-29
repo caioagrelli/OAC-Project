@@ -1,0 +1,4 @@
+QUARTUS_VERSION = "21.1"
+DATE = "2026"
+
+PROJECT_REVISION = "rv32i_pipeline"
