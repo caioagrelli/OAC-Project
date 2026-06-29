@@ -41,7 +41,7 @@ module pl_regfile (
 
     // Escrita no negedge: a atualizacao fica visivel antes do proximo posedge,
     // evitando o conflito read-after-write quando WB e ID ocorrem no mesmo ciclo.
-    always_ff @(negedge clk) begin
+    always @(negedge clk) begin
         if (RegWrite && rd != 5'b0)
             rf[rd] <= WriteData;
     end
