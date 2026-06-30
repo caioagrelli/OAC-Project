@@ -178,12 +178,12 @@ verilator --cc top.sv --exe tb/tb_etapa1.sv --build
 
 ## 🏫 Contexto Acadêmico
 
-| Campo | Informação |
-|-------|------------|
-| Disciplina | Laboratório de Organização e Arquitetura de Computadores |
-| Código | CIN0012 |
-| Instituição | Centro de Informática – UFPE (CIn) |
-| Professores | Victor Medeiros e Edna Barros |
-| Linguagem | SystemVerilog |
-| Arquitetura | RISC-V RV32I |
-| Ano | 2026 |
+| Campo         | Informação                                                |
+|-------        |------------                                               |
+| Disciplina    | Laboratório de Organização e Arquitetura de Computadores  |
+| Código        | CIN0012                                                   |
+| Instituição   | Centro de Informática – UFPE (CIn)                        |
+| Professores   | Victor Medeiros e Edna Barros                             |
+| Linguagem     | SystemVerilog                                             |
+| Arquitetura   | RISC-V RV32I                                              |
+| Ano           | 2026                                                      |

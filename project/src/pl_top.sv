@@ -42,8 +42,8 @@ module pl_top (
         .locked (pll_locked)
     );
 
-    // O CPU so sai do reset quando a PLL esta travada e KEY[0] nao e pressionado
-    assign rst_n = pll_locked & KEY[0];
+    // O CPU inicia automaticamente assim que a PLL trava
+    assign rst_n = pll_locked;
 
 
     // -------------------------------------------------------------------------

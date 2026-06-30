@@ -9,3 +9,4 @@ modelsim/*
 assembler/*
 !assembler/assembler.py
 !assembler/hello.asm
+.claude

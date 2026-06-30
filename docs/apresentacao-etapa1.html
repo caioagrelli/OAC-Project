@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Etapa 01 — RV32I Pipeline</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222636;
+      --border: #2e3249;
+      --accent: #6c8aff;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --yellow: #facc15;
+      --red: #f87171;
+      --cyan: #22d3ee;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --code-bg: #141720;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.7;
+      padding: 0 1rem 4rem;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero .tag {
+      display: inline-block;
+      background: #6c8aff22;
+      border: 1px solid #6c8aff55;
+      color: var(--accent);
+      border-radius: 20px;
+      padding: .25rem .9rem;
+      font-size: .78rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: .5rem;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: .6rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .3rem .9rem;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    .badge span { color: var(--text); font-weight: 600; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 900px; margin: 0 auto; }
+
+    /* ── SECTION ── */
+    section { margin-bottom: 2.5rem; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1.2rem;
+      padding-bottom: .6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title .icon {
+      background: var(--accent);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      flex-shrink: 0;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: .5rem;
+    }
+
+    .card p { color: var(--muted); font-size: .93rem; }
+
+    .card.green { border-left: 3px solid var(--green); }
+    .card.blue  { border-left: 3px solid var(--accent); }
+    .card.purple{ border-left: 3px solid var(--accent2); }
+    .card.yellow{ border-left: 3px solid var(--yellow); }
+    .card.red   { border-left: 3px solid var(--red); }
+    .card.cyan  { border-left: 3px solid var(--cyan); }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    thead th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: .75rem;
+      letter-spacing: .05em;
+      padding: .65rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+
+    tbody td {
+      padding: .65rem 1rem;
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    td code, th code {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .1rem .4rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: .85rem;
+      color: var(--cyan);
+    }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: .85rem;
+      overflow-x: auto;
+      margin: .8rem 0;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .code-block .kw  { color: #c792ea; }
+    .code-block .fn  { color: #82aaff; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .cmt { color: #546e7a; font-style: italic; }
+    .code-block .hl  { background: #6c8aff18; display: block; margin: 0 -1.4rem; padding: 0 1.4rem; }
+
+    /* ── FLOW ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin: .8rem 0;
+    }
+
+    .flow-step {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .4rem .9rem;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .flow-step.active {
+      background: #6c8aff22;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .flow-arrow { color: var(--muted); font-size: 1rem; }
+
+    /* ── Q&A ── */
+    .qa-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .qa-q {
+      background: var(--surface2);
+      padding: .9rem 1.2rem;
+      font-weight: 600;
+      color: var(--yellow);
+      font-size: .95rem;
+      display: flex;
+      gap: .6rem;
+      align-items: flex-start;
+    }
+
+    .qa-q .qmark {
+      background: #facc1522;
+      border: 1px solid #facc1544;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      flex-shrink: 0;
+      margin-top: .1rem;
+    }
+
+    .qa-a {
+      padding: .9rem 1.2rem;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.7;
+    }
+
+    .qa-a strong { color: var(--text); }
+    .qa-a code {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .1rem .4rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: .83rem;
+      color: var(--cyan);
+    }
+
+    /* ── TAG PILLS ── */
+    .pill {
+      display: inline-block;
+      border-radius: 20px;
+      padding: .15rem .65rem;
+      font-size: .75rem;
+      font-weight: 600;
+      margin: .1rem;
+    }
+
+    .pill.r    { background: #22d3ee22; border: 1px solid #22d3ee44; color: var(--cyan); }
+    .pill.i    { background: #a78bfa22; border: 1px solid #a78bfa44; color: var(--accent2); }
+    .pill.pass { background: #4ade8022; border: 1px solid #4ade8044; color: var(--green); }
+
+    /* ── GRID ── */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+
+    /* ── HIGHLIGHT ── */
+    mark {
+      background: #6c8aff22;
+      color: var(--accent);
+      padding: .05rem .2rem;
+      border-radius: 3px;
+    }
+
+    ul { padding-left: 1.4rem; }
+    li { margin-bottom: .3rem; color: var(--muted); font-size: .93rem; }
+    li strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="tag">CIN0012 — UFPE · 2026</div>
+  <h1>Etapa 01 — Aritmética, Lógica e Deslocamentos</h1>
+  <p>RV32I Pipeline · SystemVerilog · ModelSim</p>
+  <div class="badge-row">
+    <div class="badge"><span>12</span> instruções</div>
+    <div class="badge"><span>4</span> arquivos modificados</div>
+    <div class="badge"><span>5</span> R-type</div>
+    <div class="badge"><span>7</span> I-type</div>
+    <div class="badge" style="color:var(--green);border-color:#4ade8044;background:#4ade8011"><span>PASS</span> simulação</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 1. O QUE É -->
+  <section>
+    <div class="section-title">
+      <div class="icon">1</div>
+      O que é a Etapa 01
+    </div>
+    <div class="card blue">
+      <p>
+        O processador base entregue pelos professores já suportava apenas algumas instruções fundamentais:
+        <code>ADD</code>, <code>SUB</code>, <code>AND</code>, <code>OR</code>, <code>SLT</code>, <code>LW</code>, <code>SW</code> e <code>BEQ</code>.
+        A Etapa 01 consiste em <strong style="color:#fff">expandir a ALU e a unidade de controle</strong>
+        para suportar mais 12 instruções — 5 R-type e 7 I-type aritmético/lógico — sem alterar o pipeline em si.
+      </p>
+    </div>
+    <div class="flow">
+      <div class="flow-step">IF</div><div class="flow-arrow">→</div>
+      <div class="flow-step">ID</div><div class="flow-arrow">→</div>
+      <div class="flow-step active">EX ← aqui acontece tudo</div><div class="flow-arrow">→</div>
+      <div class="flow-step">MEM</div><div class="flow-arrow">→</div>
+      <div class="flow-step">WB</div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-top:.5rem">
+      Todas as 12 instruções da Etapa 01 são resolvidas no estágio <strong>EX</strong> pela ALU —
+      nenhuma delas acessa memória ou muda o fluxo de controle.
+    </p>
+  </section>
+
+  <!-- 2. INSTRUÇÕES -->
+  <section>
+    <div class="section-title">
+      <div class="icon">2</div>
+      Instruções implementadas
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Instrução</th>
+            <th>Tipo</th>
+            <th>funct3</th>
+            <th>funct7[5]</th>
+            <th>Operação na ALU</th>
+            <th>Código</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>XOR</code></td>
+            <td><span class="pill r">R</span></td>
+            <td><code>100</code></td>
+            <td>—</td>
+            <td><code>SrcA ^ SrcB</code></td>
+            <td><code>4'd03</code></td>
+          </tr>
+          <tr>
+            <td><code>SLL</code></td>
+            <td><span class="pill r">R</span></td>
+            <td><code>001</code></td>
+            <td>—</td>
+            <td><code>SrcA &lt;&lt; SrcB[4:0]</code></td>
+            <td><code>4'd06</code></td>
+          </tr>
+          <tr>
+            <td><code>SRL</code></td>
+            <td><span class="pill r">R</span></td>
+            <td><code>101</code></td>
+            <td><code>0</code></td>
+            <td><code>SrcA &gt;&gt; SrcB[4:0]</code></td>
+            <td><code>4'd07</code></td>
+          </tr>
+          <tr>
+            <td><code>SRA</code></td>
+            <td><span class="pill r">R</span></td>
+            <td><code>101</code></td>
+            <td><code>1</code></td>
+            <td><code>$signed(SrcA) &gt;&gt;&gt; SrcB[4:0]</code></td>
+            <td><code>4'd08</code></td>
+          </tr>
+          <tr>
+            <td><code>SLTU</code></td>
+            <td><span class="pill r">R</span></td>
+            <td><code>011</code></td>
+            <td>—</td>
+            <td><code>$unsigned(SrcA) &lt; $unsigned(SrcB)</code></td>
+            <td><code>4'd12</code></td>
+          </tr>
+          <tr>
+            <td><code>ADDI</code></td>
+            <td><span class="pill i">I</span></td>
+            <td><code>000</code></td>
+            <td>—</td>
+            <td><code>SrcA + imm</code> (reutiliza ADD)</td>
+            <td><code>4'd01</code></td>
+          </tr>
+          <tr>
+            <td><code>ANDI</code></td>
+            <td><span class="pill i">I</span></td>
+            <td><code>111</code></td>
+            <td>—</td>
+            <td><code>SrcA &amp; imm</code> (reutiliza AND)</td>
+            <td><code>4'd05</code></td>
+          </tr>
+          <tr>
+            <td><code>ORI</code></td>
+            <td><span class="pill i">I</span></td>
+            <td><code>110</code></td>
+            <td>—</td>
+            <td><code>SrcA | imm</code> (reutiliza OR)</td>
+            <td><code>4'd04</code></td>
+          </tr>
+          <tr>
+            <td><code>SLTI</code></td>
+            <td><span class="pill i">I</span></td>
+            <td><code>010</code></td>
+            <td>—</td>
+            <td><code>$signed(SrcA) &lt; imm</code> (reutiliza SLT)</td>
+            <td><code>4'd11</code></td>
+          </tr>
+          <tr>
+            <td><code>SLLI</code></td>
+            <td><span class="pill i">I</span></td>
+            <td><code>001</code></td>
+            <td>—</td>
+            <td><code>SrcA &lt;&lt; imm[4:0]</code> (reutiliza SLL)</td>
+            <td><code>4'd06</code></td>
+          </tr>
+          <tr>
+            <td><code>SRLI</code></td>
+            <td><span class="pill i">I</span></td>
+            <td><code>101</code></td>
+            <td><code>0</code></td>
+            <td><code>SrcA &gt;&gt; imm[4:0]</code> (reutiliza SRL)</td>
+            <td><code>4'd07</code></td>
+          </tr>
+          <tr>
+            <td><code>SRAI</code></td>
+            <td><span class="pill i">I</span></td>
+            <td><code>101</code></td>
+            <td><code>1</code></td>
+            <td><code>$signed(SrcA) &gt;&gt;&gt; imm[4:0]</code> (reutiliza SRA)</td>
+            <td><code>4'd08</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. ARQUIVOS -->
+  <section>
+    <div class="section-title">
+      <div class="icon">3</div>
+      O que foi modificado e por quê
+    </div>
+
+    <!-- pl_alu.sv -->
+    <div class="card green">
+      <h3>pl_alu.sv — Novas operações na ALU</h3>
+      <p>A ALU é um <code>case</code> em <code>Operation[3:0]</code>. Bastou adicionar 5 novos casos:</p>
+    </div>
+    <div class="code-block">
+<span class="cmt">// Já existia:</span>
+<span class="num">4'd01</span>: ALUResult = <span class="kw">$signed</span>(SrcA) + <span class="kw">$signed</span>(SrcB);  <span class="cmt">// ADD</span>
+<span class="num">4'd04</span>: ALUResult = SrcA | SrcB;                              <span class="cmt">// OR</span>
+<span class="num">4'd05</span>: ALUResult = SrcA & SrcB;                              <span class="cmt">// AND</span>
+<span class="num">4'd11</span>: ALUResult = <span class="num">32'</span>(<span class="kw">$signed</span>(SrcA) < <span class="kw">$signed</span>(SrcB));     <span class="cmt">// SLT</span>
+
+<span class="cmt">// Adicionado na Etapa 01:</span>
+<span class="hl"><span class="num">4'd03</span>: ALUResult = SrcA ^ SrcB;                              <span class="cmt">// XOR  ← novo</span></span>
+<span class="hl"><span class="num">4'd06</span>: ALUResult = SrcA << SrcB[<span class="num">4</span>:<span class="num">0</span>];                        <span class="cmt">// SLL  ← novo</span></span>
+<span class="hl"><span class="num">4'd07</span>: ALUResult = SrcA >> SrcB[<span class="num">4</span>:<span class="num">0</span>];                        <span class="cmt">// SRL  ← novo</span></span>
+<span class="hl"><span class="num">4'd08</span>: ALUResult = <span class="kw">$signed</span>(SrcA) >>> SrcB[<span class="num">4</span>:<span class="num">0</span>];             <span class="cmt">// SRA  ← novo</span></span>
+<span class="hl"><span class="num">4'd12</span>: ALUResult = <span class="num">32'</span>(<span class="kw">$unsigned</span>(SrcA) < <span class="kw">$unsigned</span>(SrcB)); <span class="cmt">// SLTU ← novo</span></span>
+    </div>
+
+    <!-- pl_alu_ctrl.sv -->
+    <div class="card blue">
+      <h3>pl_alu_ctrl.sv — Decodificação de funct3/funct7</h3>
+      <p>Traduz <code>ALUOp + funct3 + funct7[5]</code> para o código de operação da ALU. Dois novos blocos foram adicionados:</p>
+    </div>
+    <div class="code-block">
+<span class="cmt">// R-type (ALUOp = 2'b10) — já existia ADD/SUB, AND, OR, SLT:</span>
+<span class="num">2'b10</span>: <span class="kw">case</span> (Funct3)
+    <span class="num">3'h0</span>: Operation = Funct7[<span class="num">5</span>] ? <span class="num">4'd02</span> : <span class="num">4'd01</span>;   <span class="cmt">// SUB / ADD</span>
+<span class="hl">    <span class="num">3'h1</span>: Operation = <span class="num">4'd06</span>;                         <span class="cmt">// SLL  ← novo</span></span>
+<span class="hl">    <span class="num">3'h3</span>: Operation = <span class="num">4'd12</span>;                         <span class="cmt">// SLTU ← novo</span></span>
+<span class="hl">    <span class="num">3'h4</span>: Operation = <span class="num">4'd03</span>;                         <span class="cmt">// XOR  ← novo</span></span>
+<span class="hl">    <span class="num">3'h5</span>: Operation = Funct7[<span class="num">5</span>] ? <span class="num">4'd08</span> : <span class="num">4'd07</span>;   <span class="cmt">// SRA/SRL ← novo</span></span>
+    <span class="num">3'h6</span>: Operation = <span class="num">4'd04</span>;                         <span class="cmt">// OR</span>
+    <span class="num">3'h7</span>: Operation = <span class="num">4'd05</span>;                         <span class="cmt">// AND</span>
+<span class="kw">endcase</span>
+
+<span class="cmt">// I-type aritmético (ALUOp = 2'b11) — bloco inteiramente novo:</span>
+<span class="hl"><span class="num">2'b11</span>: <span class="kw">case</span> (Funct3)</span>
+<span class="hl">    <span class="num">3'h0</span>: Operation = <span class="num">4'd01</span>;                         <span class="cmt">// ADDI</span></span>
+<span class="hl">    <span class="num">3'h4</span>: Operation = <span class="num">4'd03</span>;                         <span class="cmt">// XORI</span></span>
+<span class="hl">    <span class="num">3'h6</span>: Operation = <span class="num">4'd04</span>;                         <span class="cmt">// ORI</span></span>
+<span class="hl">    <span class="num">3'h7</span>: Operation = <span class="num">4'd05</span>;                         <span class="cmt">// ANDI</span></span>
+<span class="hl">    <span class="num">3'h1</span>: Operation = <span class="num">4'd06</span>;                         <span class="cmt">// SLLI</span></span>
+<span class="hl">    <span class="num">3'h2</span>: Operation = <span class="num">4'd11</span>;                         <span class="cmt">// SLTI</span></span>
+<span class="hl">    <span class="num">3'h5</span>: Operation = Funct7[<span class="num">5</span>] ? <span class="num">4'd08</span> : <span class="num">4'd07</span>;   <span class="cmt">// SRAI/SRLI</span></span>
+<span class="hl"><span class="kw">endcase</span></span>
+    </div>
+
+    <!-- pl_control.sv -->
+    <div class="card purple">
+      <h3>pl_control.sv — Novo opcode I-type aritmético</h3>
+      <p>O controlador principal só enxerga o <strong>opcode</strong> (7 bits). O opcode das instruções I-type aritméticas (<code>ADDI</code>, <code>ORI</code>, etc.) é <code>7'b0010011</code>, diferente do LOAD (<code>7'b0000011</code>). Foi adicionado um novo caso:</p>
+    </div>
+    <div class="code-block">
+<span class="kw">localparam</span> I_TYPE = <span class="num">7'b0010011</span>;  <span class="cmt">// ← novo</span>
+
+I_TYPE: <span class="kw">begin</span>
+    ALUSrcB  = <span class="num">1'b1</span>;   <span class="cmt">// SrcB da ALU vem do imediato, não de rs2</span>
+    RegWrite = <span class="num">1'b1</span>;   <span class="cmt">// escreve resultado em rd</span>
+    ALUOp    = <span class="num">2'b11</span>;  <span class="cmt">// sinaliza ao alu_ctrl que é I-type aritmético</span>
+<span class="kw">end</span>
+    </div>
+
+    <!-- pl_sign_ext.sv -->
+    <div class="card yellow">
+      <h3>pl_sign_ext.sv — Extensão de sinal do imediato</h3>
+      <p>As instruções I-type têm um imediato de 12 bits em <code>Instr[31:20]</code>. O extensor de sinal já tratava LOAD com o mesmo encoding — a solução foi <strong>compartilhar o mesmo caso</strong>:</p>
+    </div>
+    <div class="code-block">
+<span class="kw">localparam</span> I_TYPE = <span class="num">7'b0010011</span>;
+<span class="kw">localparam</span> LOAD   = <span class="num">7'b0000011</span>;
+
+<span class="cmt">// Ambos usam o mesmo encoding de imediato:</span>
+LOAD, I_TYPE: ImmExt = &#123;&#123;<span class="num">20</span>&#123;Instr[<span class="num">31</span>]&#125;&#125;, Instr[<span class="num">31</span>:<span class="num">20</span>]&#125;;
+<span class="cmt">//            ↑ extensão de sinal de 12 para 32 bits</span>
+    </div>
+  </section>
+
+  <!-- 4. FLUXO COMPLETO -->
+  <section>
+    <div class="section-title">
+      <div class="icon">4</div>
+      Fluxo completo de uma instrução (exemplo: ADDI x9, x1, 5)
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Estágio</th><th>O que acontece</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>IF</strong></td>
+            <td>Instrução buscada na imem com o PC atual. Codificação binária <code>00000101 00001 000 01001 0010011</code> é carregada no registrador IF/ID.</td>
+          </tr>
+          <tr>
+            <td><strong>ID</strong></td>
+            <td><code>pl_control</code> lê opcode <code>0010011</code> → gera <code>ALUSrcB=1</code>, <code>RegWrite=1</code>, <code>ALUOp=11</code>. <code>pl_sign_ext</code> extende o imediato 5 para 32 bits. Banco de registradores lê rs1 (x1 = 10).</td>
+          </tr>
+          <tr>
+            <td><strong>EX</strong></td>
+            <td><code>pl_alu_ctrl</code> recebe <code>ALUOp=11</code>, <code>funct3=000</code> → <code>Operation=4'd01</code> (ADD). ALU calcula <code>10 + 5 = 15</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>MEM</strong></td>
+            <td>Nenhum acesso à memória (<code>MemRead=0</code>, <code>MemWrite=0</code>). Resultado passa direto.</td>
+          </tr>
+          <tr>
+            <td><strong>WB</strong></td>
+            <td><code>ResultSrc=00</code> → seleciona resultado da ALU (15). <code>RegWrite=1</code> → escreve 15 em x9.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. DECISÕES -->
+  <section>
+    <div class="section-title">
+      <div class="icon">5</div>
+      Decisões de projeto
+    </div>
+
+    <div class="grid2">
+      <div class="card green">
+        <h3>Reutilização de operações da ALU</h3>
+        <p>
+          As 7 instruções I-type <strong>não precisam de novas entradas na ALU</strong>.
+          <code>ADDI</code> reutiliza <code>ADD</code>, <code>ANDI</code> reutiliza <code>AND</code>, etc.
+          Só o <code>alu_ctrl</code> precisa mapear o novo <code>funct3</code> para o código já existente.
+          Isso manteve a ALU simples.
+        </p>
+      </div>
+      <div class="card blue">
+        <h3>ALUOp 2'b11 para I-type</h3>
+        <p>
+          O código base usava <code>ALUOp=10</code> para R-type e <code>01</code> para branch. Precisávamos de um código novo para I-type aritmético, já que LOAD também usa imediato mas quer forçar ADD (<code>ALUOp=00</code>).
+          Escolhemos <code>2'b11</code> — o único valor livre.
+        </p>
+      </div>
+      <div class="card purple">
+        <h3>SRA e SRAI: bit funct7[5]</h3>
+        <p>
+          <code>SRL</code> e <code>SRA</code> têm o mesmo <code>funct3=101</code>. O ISA usa o bit 30 da instrução (= <code>funct7[5]</code>) para diferenciá-los: <code>0</code> = lógico, <code>1</code> = aritmético. O mesmo bit diferencia <code>SRLI</code> de <code>SRAI</code> no I-type — o encoding é idêntico.
+        </p>
+      </div>
+      <div class="card yellow">
+        <h3>Shifts usam só SrcB[4:0]</h3>
+        <p>
+          Em RISC-V, o shift amount é sempre os 5 bits menos significativos de rs2 (ou do imediato), pois o máximo útil para 32 bits é 31. A ALU usa <code>SrcB[4:0]</code> — os outros 27 bits são ignorados por definição do ISA.
+        </p>
+      </div>
+      <div class="card cyan">
+        <h3>sign_ext compartilha LOAD e I_TYPE</h3>
+        <p>
+          LOAD e I-type aritmético têm o mesmo encoding de imediato: <code>Instr[31:20]</code> com extensão de sinal. Em vez de duplicar código, o <code>pl_sign_ext</code> agrupa os dois opcodes no mesmo <code>case</code> do SystemVerilog.
+        </p>
+      </div>
+      <div class="card red">
+        <h3>NOPs antes dos stores na simulação</h3>
+        <p>
+          Com pipeline de 5 estágios, uma instrução recém-calculada demora até 4 ciclos para estar disponível em WB. Para que o testbench imprima o estado final correto, inserimos <strong>4 NOPs</strong> entre os cálculos e os <code>SW</code>, garantindo que todos os registradores já foram escritos antes de ir para a memória.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SIMULAÇÃO -->
+  <section>
+    <div class="section-title">
+      <div class="icon">6</div>
+      Simulação — como foi feita
+    </div>
+    <div class="card blue">
+      <p>
+        O testbench <code>pl_cpu_tb.sv</code> executa o programa em <code>etapa01_test.asm</code>, imprime o estado de cada registrador e posição de memória conforme as instruções completam o WB, e no final compara a saída com <code>golden.txt</code>.
+        Se bater exatamente, imprime <strong style="color:var(--green)">PASS</strong>.
+      </p>
+    </div>
+    <div class="table-wrap" style="margin-top:.8rem">
+      <table>
+        <thead>
+          <tr><th>Registrador</th><th>Valor esperado</th><th>Instrução responsável</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>x3</code></td><td><code>0x00000009</code></td><td><code>XOR x3, x1, x2</code> (10 XOR 3)</td></tr>
+          <tr><td><code>x4</code></td><td><code>0x00000050</code></td><td><code>SLL x4, x1, x2</code> (10 &lt;&lt; 3 = 80)</td></tr>
+          <tr><td><code>x5</code></td><td><code>0x0000000A</code></td><td><code>SRL x5, x4, x2</code> (80 &gt;&gt; 3 = 10)</td></tr>
+          <tr><td><code>x7</code></td><td><code>0xFFFFFFFF</code></td><td><code>SRA x7, x6, x2</code> (-8 &gt;&gt;&gt; 3 = -1)</td></tr>
+          <tr><td><code>x8</code></td><td><code>0x00000001</code></td><td><code>SLTU x8, x2, x1</code> (3 &lt;u 10 = 1)</td></tr>
+          <tr><td><code>x9</code></td><td><code>0x0000000F</code></td><td><code>ADDI x9, x1, 5</code> (10+5=15)</td></tr>
+          <tr><td><code>x10</code></td><td><code>0x00000002</code></td><td><code>ANDI x10, x1, 6</code> (10 &amp; 6 = 2)</td></tr>
+          <tr><td><code>x11</code></td><td><code>0x0000000F</code></td><td><code>ORI x11, x2, 12</code> (3 | 12 = 15)</td></tr>
+          <tr><td><code>x12</code></td><td><code>0x00000001</code></td><td><code>SLTI x12, x6, 0</code> (-8 &lt; 0 = 1)</td></tr>
+          <tr><td><code>x13</code></td><td><code>0x0000000C</code></td><td><code>SLLI x13, x2, 2</code> (3 &lt;&lt; 2 = 12)</td></tr>
+          <tr><td><code>x14</code></td><td><code>0x00000028</code></td><td><code>SRLI x14, x4, 1</code> (80 &gt;&gt; 1 = 40)</td></tr>
+          <tr><td><code>x15</code></td><td><code>0xFFFFFFFC</code></td><td><code>SRAI x15, x6, 1</code> (-8 &gt;&gt;&gt; 1 = -4)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 7. PERGUNTAS -->
+  <section>
+    <div class="section-title">
+      <div class="icon">7</div>
+      Perguntas possíveis na apresentação
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> Qual a diferença entre SRL e SRA?</div>
+      <div class="qa-a">
+        <strong>SRL</strong> (Shift Right Logical) preenche os bits mais significativos com <strong>zero</strong> — ignora o sinal. <strong>SRA</strong> (Shift Right Arithmetic) replica o <strong>bit de sinal</strong> (bit 31) nos bits que entram. Por isso <code>SRA -8, 3</code> dá <code>-1</code> (todos os bits ficam 1), enquanto <code>SRL -8, 3</code> daria um número positivo grande. No código, usamos <code>>>></code> do SystemVerilog com o cast <code>$signed</code> para forçar o comportamento aritmético.
+      </div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> Como o processador sabe se é SRA ou SRL se ambos têm funct3=101?</div>
+      <div class="qa-a">
+        O ISA RISC-V usa o <strong>bit 30 da instrução</strong> — que coincide com <code>funct7[5]</code> — como discriminador. Se <code>funct7[5]=1</code>, é aritmético; se <code>0</code>, é lógico. O <code>pl_alu_ctrl.sv</code> verifica esse bit: <code>Operation = Funct7[5] ? 4'd08 : 4'd07</code>. O mesmo vale para <code>SRAI</code> vs <code>SRLI</code> no I-type.
+      </div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> Por que ADDI não precisou de nova operação na ALU?</div>
+      <div class="qa-a">
+        Porque <code>ADDI rd, rs1, imm</code> faz exatamente a mesma operação que <code>ADD</code> — soma dois valores de 32 bits. A única diferença é que um dos operandos vem do imediato e não de um registrador. Quem cuida disso é o sinal <code>ALUSrcB=1</code> no controlador, que direciona o mux de entrada da ALU para o imediato. A ALU em si recebe dois valores e soma — não sabe nem se importa de onde vieram.
+      </div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> Qual a diferença entre SLT e SLTU?</div>
+      <div class="qa-a">
+        <strong>SLT</strong> compara os operandos <strong>com sinal</strong> (complemento de dois): <code>-1 &lt; 1</code> é verdadeiro. <strong>SLTU</strong> compara <strong>sem sinal</strong>: o mesmo padrão de bits de <code>-1</code> (<code>0xFFFFFFFF</code>) é tratado como <code>4294967295</code>, que é maior que qualquer número de 32 bits positivo. No código, usamos os casts <code>$signed</code> e <code>$unsigned</code> do SystemVerilog para forçar o tipo antes da comparação.
+      </div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> Por que foi necessário criar o ALUOp 2'b11?</div>
+      <div class="qa-a">
+        O controlador da ALU (<code>pl_alu_ctrl</code>) precisa saber <em>em qual contexto</em> vai decodificar <code>funct3</code>. Com só 2 bits de <code>ALUOp</code>, os valores existentes eram: <code>00</code> = Load/Store (forçar ADD), <code>01</code> = Branch (forçar SUB), <code>10</code> = R-type. Precisávamos de um quarto caso para I-type aritmético — <code>2'b11</code> foi o valor natural disponível. Se tivéssemos usado <code>10</code> (mesmo que R-type), o decodificador não saberia se deve ignorar <code>funct7</code> ou não.
+      </div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> O que é o imediato nas instruções I-type e como é estendido?</div>
+      <div class="qa-a">
+        As instruções I-type têm um campo de <strong>12 bits</strong> codificado em <code>Instr[31:20]</code>. Para operar com 32 bits, esse valor precisa ser estendido para 32 bits preservando o sinal: os 20 bits mais significativos são preenchidos com cópias do bit 31 (bit de sinal). Isso é feito em <code>pl_sign_ext.sv</code>: <code>ImmExt = &#123;&#123;20&#123;Instr[31]&#125;&#125;, Instr[31:20]&#125;</code>. Assim, imediatos negativos como <code>-8</code> (<code>111111111000</code> em 12 bits) ficam corretamente representados em 32 bits.
+      </div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> Como foi feita a divisão do trabalho entre os integrantes?</div>
+      <div class="qa-a">
+        3 instruções por pessoa. O critério foi agrupar instruções com <strong>lógica similar</strong> para minimizar conflitos no git e facilitar o entendimento:
+        <br><br>
+        <strong>Caio</strong> — XOR, ADDI, ANDI &nbsp;|&nbsp;
+        <strong>Lucas</strong> — SLL, ORI, SLTI &nbsp;|&nbsp;
+        <strong>João</strong> — SRL, SRA, SLLI &nbsp;|&nbsp;
+        <strong>Thales</strong> — SLTU, SRLI, SRAI
+        <br><br>
+        Os arquivos compartilhados (<code>pl_control.sv</code> e <code>pl_sign_ext.sv</code>) foram alterados por uma única pessoa antes dos demais — assim ninguém teve conflito de merge nesses dois arquivos.
+      </div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> A etapa 01 afeta o pipeline? Gera hazards novos?</div>
+      <div class="qa-a">
+        <strong>Não</strong>. Todas as 12 instruções são resolvidas no estágio EX — nenhuma acessa memória nem altera o PC. Os hazards existentes (forwarding para RAW e load-use stall) já cobriam esse caso: se uma instrução R-type ou I-type produz um resultado que outra instrução lê em seguida, o forwarding encaminha o dado sem stall. O único cuidado foi nos NOPs inseridos na simulação para dar tempo ao testbench de capturar o estado final.
+      </div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q"><div class="qmark">?</div> Por que usar $signed e $unsigned em SystemVerilog?</div>
+      <div class="qa-a">
+        Por padrão, SystemVerilog trata sinais de <code>logic</code> como <strong>sem sinal</strong>. Para que operadores como <code>&lt;</code> e <code>&gt;&gt;&gt;</code> se comportem corretamente com negativos, precisamos explicitamente informar o tipo com <code>$signed()</code>. Sem esse cast, <code>SRA -8, 3</code> produziria o resultado de <code>SRL</code> (shift lógico) — o simulador simplesmente não replica o bit de sinal.
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
